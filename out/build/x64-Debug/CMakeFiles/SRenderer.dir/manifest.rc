@@ -1,0 +1,2 @@
+#pragma code_page(65001)
+1 /* CREATEPROCESS_MANIFEST_RESOURCE_ID */ 24 /* RT_MANIFEST */ "D:/study/workplace210115/VS2019/SmallRenderer/out/build/x64-Debug/CMakeFiles/SRenderer.dir/embed.manifest"
