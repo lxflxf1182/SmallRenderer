@@ -13,15 +13,18 @@ set(HEADERS
 	SmallRenderer/core/model.h
 	SmallRenderer/core/draw2d.h
 	SmallRenderer/core/math.h
+	SmallRenderer/core/buffer.h
+	SmallRenderer/core/matrix.h
+	SmallRenderer/core/camera.h
 )
 set(SOURCES
 	SmallRenderer/core/file.cpp
 	SmallRenderer/core/image.cpp
 	SmallRenderer/core/util.cpp
-	SmallRenderer/core/vector.cpp
 	SmallRenderer/core/model.cpp
 	SmallRenderer/core/draw2d.cpp
 	SmallRenderer/core/math.cpp
+	SmallRenderer/core/buffer.cpp
 	SmallRenderer/main.cpp
 )
 

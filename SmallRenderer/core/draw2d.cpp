@@ -116,26 +116,62 @@ void draw_triangle_v2(Vector2i v1, Vector2i v2, Vector2i v3, Image& image, const
     }
 }
 
-void draw_triangle_v3(Vector2i* pts, Image& image, const uint8_t* color)
+//void draw_triangle_v3(Vector2i* pts, Image& image, const uint8_t* color)
+//{
+//    Vector2i bboxmin(image.get_width() - 1, image.get_height() - 1);
+//    Vector2i bboxmax(0, 0);
+//    Vector2i clamp(image.get_width() - 1, image.get_height() - 1);
+//
+//    for (int i = 0; i < 3; i++) {
+//        bboxmin.x = std::max(0, std::min(bboxmin.x, pts[i].x));
+//        bboxmin.y = std::max(0, std::min(bboxmin.y, pts[i].y));
+//
+//        bboxmax.x = std::min(clamp.x, std::max(bboxmax.x, pts[i].x));
+//        bboxmax.y = std::min(clamp.y, std::max(bboxmax.y, pts[i].y));
+//    }
+//
+//    Vector2i P;
+//    for (P.x = bboxmin.x; P.x <= bboxmax.x; P.x++) {
+//        for (P.y = bboxmin.y; P.y <= bboxmax.y; P.y++) {
+//            Vector3f bc_screen = barycentric(pts, P);
+//            if (bc_screen.x < 0 || bc_screen.y < 0 || bc_screen.z < 0) continue;
+//            image.set(P.x, P.y, color);
+//        }
+//    }
+//}
+
+void draw_triangle_with_zbuffer(Vector3f* pts, Vector2f* texts, ZBuffer& zbuffer, Image& image, Model* model)
 {
-    Vector2i bboxmin(image.get_width() - 1, image.get_height() - 1);
-    Vector2i bboxmax(0, 0);
-    Vector2i clamp(image.get_width() - 1, image.get_height() - 1);
+    Vector2f bboxmin(std::numeric_limits<float>::max(), std::numeric_limits<float>::max());
+    Vector2f bboxmax(-std::numeric_limits<float>::max(), -std::numeric_limits<float>::max());
+    Vector2f clamp(image.get_width() - 1, image.get_height() - 1);
 
     for (int i = 0; i < 3; i++) {
-        bboxmin.x = std::max(0, std::min(bboxmin.x, pts[i].x));
-        bboxmin.y = std::max(0, std::min(bboxmin.y, pts[i].y));
-
-        bboxmax.x = std::min(clamp.x, std::max(bboxmax.x, pts[i].x));
-        bboxmax.y = std::min(clamp.y, std::max(bboxmax.y, pts[i].y));
+        for (int j = 0; j < 2; j++) {
+            bboxmin[j] = std::max(0.f, std::min(bboxmin[j], pts[i][j]));
+            bboxmax[j] = std::min(clamp[j], std::max(bboxmax[j], pts[i][j]));
+        }
     }
 
-    Vector2i P;
+    Vector3f P;
     for (P.x = bboxmin.x; P.x <= bboxmax.x; P.x++) {
         for (P.y = bboxmin.y; P.y <= bboxmax.y; P.y++) {
             Vector3f bc_screen = barycentric(pts, P);
             if (bc_screen.x < 0 || bc_screen.y < 0 || bc_screen.z < 0) continue;
-            image.set(P.x, P.y, color);
+            P.z = 0;
+            Vector2f Ptext(0, 0);
+            for (int i = 0; i < 3; i++)
+            {
+                P.z += pts[i][2] * bc_screen[i];
+                Ptext[0] += texts[i][0] * bc_screen[i];
+                Ptext[1] += texts[i][1] * bc_screen[i];
+            }
+
+            if (zbuffer[int(P.x + P.y * image.get_width())] < P.z) {
+                uint8_t* color = model->get_diffuse_color(Ptext); // 获得纹理颜色 
+                image.set(P.x, P.y, color);
+                zbuffer[int(P.x + P.y * image.get_width())] = P.z;
+            }
         }
     }
 }

@@ -35,6 +35,14 @@ void Image::set(int row, int col, const uint8_t* color) {
 	}
 }
 
+uint8_t* Image::get(int row, int col)
+{
+	uint8_t* color = new uint8_t[channels];
+	int index = get_index(row, col) * channels;
+	memcpy(color, &ldr_data[index], channels);
+	return color;
+}
+
 int Image::get_width()
 {
 	return width;

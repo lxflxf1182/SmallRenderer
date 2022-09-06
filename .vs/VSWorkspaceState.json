@@ -5,6 +5,6 @@
     "\\SmallRenderer",
     "\\SmallRenderer\\core"
   ],
-  "SelectedNode": "\\CMakeLists.txt",
+  "SelectedNode": "\\SmallRenderer\\core\\math.cpp",
   "PreviewInSolutionExplorer": false
 }

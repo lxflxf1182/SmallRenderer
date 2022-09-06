@@ -86,3 +86,35 @@ Vector3f Model::get_vertex(const int face_index, const int ver_index)
 	int index = face_buffer[v_index] - 1;
 	return position_buffer[index];
 }
+
+Vector2f Model::get_uv(const int face_index, const int ver_index)
+{
+	int v_index = face_index + ver_index * 3 + 1;
+	int index = face_buffer[v_index] - 1;
+	return texcoord_buffer[index];
+}
+
+void Model::load_diffuse_map(const std::string file_name)
+{
+	diffuse_map.read(file_name);
+	//diffuse_map.flip_vertically();
+}
+
+void Model::load_normal_map(const std::string file_name)
+{
+	normal_map.read(file_name);
+	//normal_map.flip_vertically();
+}
+
+void Model::load_specular_map(const std::string file_name)
+{
+	specular_map.read(file_name);
+	//specular_map.flip_vertically();
+}
+
+uint8_t* Model::get_diffuse_color(const Vector2f& texcoord)
+{
+
+	Vector2i uv(texcoord.x * diffuse_map.get_width(), texcoord.y * diffuse_map.get_height());
+	return diffuse_map.get(uv[0], uv[1]);
+}

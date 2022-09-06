@@ -37,18 +37,20 @@ public:
 
 	void set(int row, int col, const uint8_t* color);
 
+	uint8_t* get(int row, int col);
+
 	int get_width();
 
 	int get_height();
+
+	void flip_horizontally();
+
+	void flip_vertically();
 
 protected:
 	void write_tga(const std::string file_name);
 
 	void read_tga(const std::string file_name);
-
-	void flip_horizontally();
-
-	void flip_vertically();
 
 	int get_index(const int row, const int col);
 	 
