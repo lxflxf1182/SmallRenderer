@@ -16,6 +16,7 @@ set(HEADERS
 	SmallRenderer/core/buffer.h
 	SmallRenderer/core/matrix.h
 	SmallRenderer/core/camera.h
+	SmallRenderer/core/transform.h
 )
 set(SOURCES
 	SmallRenderer/core/file.cpp
@@ -25,6 +26,8 @@ set(SOURCES
 	SmallRenderer/core/draw2d.cpp
 	SmallRenderer/core/math.cpp
 	SmallRenderer/core/buffer.cpp
+	SmallRenderer/core/camera.cpp
+	SmallRenderer/core/transform.cpp
 	SmallRenderer/main.cpp
 )
 

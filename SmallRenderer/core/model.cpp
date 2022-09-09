@@ -35,7 +35,7 @@ void Model::load_obj(const std::string file_name)
 		} else if (strncmp(line, "v ", 2) == 0) {
 			Vector3f position;
 			items = sscanf(line, "v %f %f %f",
-				&position.x, &position.y, &position.z);
+				&position[0], &position[1], &position[2]);
 			if (items != 3) {
 				Throw("Model::Model(string): incorrect vertex read");
 			}
@@ -51,7 +51,7 @@ void Model::load_obj(const std::string file_name)
 		} else if (strncmp(line, "vn ", 3) == 0) {              /* normal */
 			Vector3f normal;
 			items = sscanf(line, "vn %f %f %f",
-				&normal.x, &normal.y, &normal.z);
+				&normal[0], &normal[1], &normal[2]);
 			if (items != 3) {
 				Throw("Model::Model(string): incorrect normal read");
 			}

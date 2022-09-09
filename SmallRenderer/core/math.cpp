@@ -15,11 +15,6 @@ Vector3f barycentric(Vector3f* pts, Vector3f P) {
     // 由于 A, B, C, P 的坐标都是 int 类型，所以 u.z 必定是 int 类型，取值范围为 ..., -2, -1, 0, 1, 2, ...
     // 所以 u.z 绝对值小于 1 意味着三角形退化了，直接舍弃
     if (std::abs(u[2]) > 1e-2)
-        return Vector3f(1.f - (u.x + u.y) / u.z, u.y / u.z, u.x / u.z);
+        return Vector3f(1.f - (u.x() + u.y()) / u.z(), u.y() / u.z(), u.x() / u.z());
     return Vector3f(-1, 1, 1);
-
-    //if (std::abs(u.z) < 1) {
-    //    return Vector3f(-1, 1, 1);
-    //}
-    //return Vector3f(1.f - (u.x + u.y) / (float)u.z, u.x / (float)u.z, u.y / (float)u.z);
 }

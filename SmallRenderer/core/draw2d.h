@@ -22,6 +22,8 @@ void draw_triangle_v2(Vector2i v1, Vector2i v2, Vector2i v3, Image& image, const
 
 //void draw_triangle_v3(Vector2i* pts, Image& image, const uint8_t* color);
 
-void draw_triangle_with_zbuffer(Vector3f* pts, Vector2f* texts, ZBuffer& zbuffer, Image& image, Model* model);
+void draw_triangle_with_zbuffer(Vector3f* pts, ZBuffer& zbuffer, Image& image, uint8_t* color);
+
+void draw_triangle_with_zbuffer_and_texs(Vector3f* pts, Vector2f* texts, ZBuffer& zbuffer, Image& image, Model* model);
 
 #endif

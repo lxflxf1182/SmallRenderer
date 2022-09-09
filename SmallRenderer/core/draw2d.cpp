@@ -140,7 +140,7 @@ void draw_triangle_v2(Vector2i v1, Vector2i v2, Vector2i v3, Image& image, const
 //    }
 //}
 
-void draw_triangle_with_zbuffer(Vector3f* pts, Vector2f* texts, ZBuffer& zbuffer, Image& image, Model* model)
+void draw_triangle_with_zbuffer(Vector3f* pts, ZBuffer& zbuffer, Image& image, uint8_t* color)
 {
     Vector2f bboxmin(std::numeric_limits<float>::max(), std::numeric_limits<float>::max());
     Vector2f bboxmax(-std::numeric_limits<float>::max(), -std::numeric_limits<float>::max());
@@ -154,23 +154,56 @@ void draw_triangle_with_zbuffer(Vector3f* pts, Vector2f* texts, ZBuffer& zbuffer
     }
 
     Vector3f P;
-    for (P.x = bboxmin.x; P.x <= bboxmax.x; P.x++) {
-        for (P.y = bboxmin.y; P.y <= bboxmax.y; P.y++) {
+    for (P[0] = bboxmin.x; P[0] <= bboxmax.x; P[0]++) {
+        for (P[1] = bboxmin.y; P[1] <= bboxmax.y; P[1]++) {
             Vector3f bc_screen = barycentric(pts, P);
-            if (bc_screen.x < 0 || bc_screen.y < 0 || bc_screen.z < 0) continue;
-            P.z = 0;
+            if (bc_screen.x() < 0 || bc_screen.y() < 0 || bc_screen.z() < 0) continue;
+            float z = 0;
+            for (int i = 0; i < 3; i++)
+            {
+                z += pts[i][2] * bc_screen[i];
+            }
+
+            if (zbuffer[int(P.x() + P.y() * image.get_width())] < z) {
+                //uint8_t* color = model->get_diffuse_color(Ptext); // 获得纹理颜色 
+                image.set(P.x(), P.y(), color);
+                zbuffer[int(P.x() + P.y() * image.get_width())] = z;
+            }
+        }
+    }
+}
+
+void draw_triangle_with_zbuffer_and_texs(Vector3f* pts, Vector2f* texts, ZBuffer& zbuffer, Image& image, Model* model)
+{
+    Vector2f bboxmin(std::numeric_limits<float>::max(), std::numeric_limits<float>::max());
+    Vector2f bboxmax(-std::numeric_limits<float>::max(), -std::numeric_limits<float>::max());
+    Vector2f clamp(image.get_width() - 1, image.get_height() - 1);
+
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 2; j++) {
+            bboxmin[j] = std::max(0.f, std::min(bboxmin[j], pts[i][j]));
+            bboxmax[j] = std::min(clamp[j], std::max(bboxmax[j], pts[i][j]));
+        }
+    }
+
+    Vector3f P;
+    for (P[0] = bboxmin.x; P[0] <= bboxmax.x; P[0]++) {
+        for (P[1] = bboxmin.y; P[1] <= bboxmax.y; P[1]++) {
+            Vector3f bc_screen = barycentric(pts, P);
+            if (bc_screen.x() < 0 || bc_screen.y() < 0 || bc_screen.z() < 0) continue;
+            float z = 0;
             Vector2f Ptext(0, 0);
             for (int i = 0; i < 3; i++)
             {
-                P.z += pts[i][2] * bc_screen[i];
+                z += pts[i][2] * bc_screen[i];
                 Ptext[0] += texts[i][0] * bc_screen[i];
                 Ptext[1] += texts[i][1] * bc_screen[i];
             }
 
-            if (zbuffer[int(P.x + P.y * image.get_width())] < P.z) {
+            if (zbuffer[int(P.x() + P.y() * image.get_width())] < z) {
                 uint8_t* color = model->get_diffuse_color(Ptext); // 获得纹理颜色 
-                image.set(P.x, P.y, color);
-                zbuffer[int(P.x + P.y * image.get_width())] = P.z;
+                image.set(P.x(), P.y(), color);
+                zbuffer[int(P.x() + P.y() * image.get_width())] = z;
             }
         }
     }
