@@ -36,13 +36,15 @@ public:
 
 	Vector2f get_uv(const int face_index, const int ver_index);
 
+	Vector3f get_normal(const int face_index, const int ver_index);
+
 	void load_diffuse_map(const std::string file_name);
 
 	void load_normal_map(const std::string file_name);
 
 	void load_specular_map(const std::string file_name);
 
-	uint8_t* get_diffuse_color(const Vector2f& texcoord);
+	uint8_t* get_diffuse_color(Vector2f& texcoord);
 
 private:
 

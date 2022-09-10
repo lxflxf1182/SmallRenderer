@@ -5,21 +5,21 @@
 #include "file.h"
 
 class Buffer {
-protected:
-	int width, height;
-};
-
-class ZBuffer :Buffer {
 public:
-	ZBuffer(int width, int height);
-	~ZBuffer()
+	float& operator [](int index);
+
+	~Buffer()
 	{
 		delete[] buffer;
 	}
-
-	float& operator [](int index);
-
+protected:
+	int width, height;
 	float* buffer;
+};
+
+class ZBuffer : public Buffer {
+public:
+	ZBuffer(int width, int height);
 };
 
 

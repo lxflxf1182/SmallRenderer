@@ -8,13 +8,13 @@ void Transform::lookat(Camera& camera)
 	Vector3f x = normalize(cross(camera.up, z));
 	Vector3f y = normalize(cross(z, x));
 
-	model_trans = Matrix4f::identity();
+	view_trans = Matrix4f::identity();
 	for (int i = 0; i < 3; i++)
 	{
-		model_trans[0][i] = x[i];
-		model_trans[1][i] = y[i];
-		model_trans[2][i] = z[i];
-		model_trans[i][3] = -camera.position[i];
+		view_trans[0][i] = x[i];
+		view_trans[1][i] = y[i];
+		view_trans[2][i] = z[i];
+		view_trans[i][3] = -camera.position[i];
 	}
 }
 
@@ -39,28 +39,28 @@ void Transform::perspective(Perspective& camera)
 
 void Transform::viewport(int x, int y, int width, int height)
 {
-	view_trans = Matrix4f::identity();
-	view_trans[0][0] = width / 2.f;
-	view_trans[0][3] = width / 2.f;
-	view_trans[1][1] = height / 2.f;
-	view_trans[1][3] = height / 2.f;
-	view_trans[3][3] = 1;
-	view_trans[2][2] = 1;
+	viewport_trans = Matrix4f::identity();
+	viewport_trans[0][0] = width / 2.f;
+	viewport_trans[0][3] = width / 2.f;
+	viewport_trans[1][1] = height / 2.f;
+	viewport_trans[1][3] = height / 2.f;
+	viewport_trans[3][3] = 1;
+	viewport_trans[2][2] = 1;
 }
 
-void Transform::cal_transform(Perspective& camera, Image& image)
+void Transform::init(Perspective& camera, Image& image)
 {
 	lookat(camera);
 	perspective(camera);
 	viewport(0, 0, image.get_width(), image.get_height());
-	transform = view_trans * projection_trans * model_trans;
+	transform = projection_trans * view_trans;
 }
 
-Vector3f Transform::world2screen(Vector3f& v, float width, float height)
+Vector3f Transform::world2screen(Vector3f& v)
 {
 	
 	Vector4f  gl_vertex(v.x(), v.y(), v.z(), 1);
-	gl_vertex = transform * gl_vertex;
+	gl_vertex = transform * gl_vertex;   
 	Vector3f ans = get_vector3(gl_vertex);
 	return Vector3f(int(ans.x()), int(ans.y()), ans.z());
 }

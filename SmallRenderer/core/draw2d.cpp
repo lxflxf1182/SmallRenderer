@@ -1,5 +1,60 @@
 #include "draw2d.h"
 
+void rasterize_singlethread(Image& image, ZBuffer& zbuffer, IShader& shader)
+{
+    Vector3f vertexs[3];
+    for (int i = 0; i < 3; i++)
+    {
+        Vector3f tep = get_vector3(shader.trans->viewport_trans * shader.clipcoord_attri[i]);
+        vertexs[i] = Vector3f(tep.x(), tep.y(), -shader.clipcoord_attri[i].z());
+    }
+
+    Vector2f bboxmin(std::numeric_limits<float>::max(), std::numeric_limits<float>::max());
+    Vector2f bboxmax(-std::numeric_limits<float>::max(), -std::numeric_limits<float>::max());
+    Vector2f clamp1(image.get_width() - 1, image.get_height() - 1);
+
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 2; j++) {
+            bboxmin[j] = std::max(0.f, std::min(bboxmin[j], vertexs[i][j]));
+            bboxmax[j] = std::min(clamp1[j], std::max(bboxmax[j], vertexs[i][j]));
+        }
+    }
+
+    for (int x = (int)bboxmin.x(); x <= (int)bboxmax.x(); x++) {
+        for (int y = (int)bboxmin.y(); y <= (int)bboxmax.y(); y++) {
+
+            Vector3f bc_screen = barycentric(vertexs, Vector3f(x, y, 0));
+
+            if (bc_screen.x() < 0 || bc_screen.y() < 0 || bc_screen.z() < 0) continue;
+
+            float alpha = bc_screen.x(); 
+            float beta = bc_screen.y(); 
+            float gamma = bc_screen.z();
+
+            //interpolation correct term
+            float normalizer = 1.0 / (alpha / shader.clipcoord_attri[0].w() + beta / shader.clipcoord_attri[1].w() + gamma / shader.clipcoord_attri[2].w());
+            //for larger z means away from camera, needs to interpolate z-value as a property			
+            float z = (alpha * vertexs[0].z() / shader.clipcoord_attri[0].w() + beta * vertexs[1].z() / shader.clipcoord_attri[1].w() +
+                gamma * vertexs[2].z() / shader.clipcoord_attri[2].w()) * normalizer;
+
+            if (zbuffer[int(x + y * image.get_width())] > z) {
+                zbuffer[int(x + y * image.get_width())] = z;
+
+                uint8_t* color = shader.fragment_shader(alpha, beta, gamma); 
+
+                //clamp color value
+                for (int i = 0; i < 3; i++)
+                {
+                    color[i] = clamp((int)color[i], 0, 255);
+                }
+                //uint8_t color[3] =  { 255, 0, 255 };
+                image.set(x, y, color);
+            }
+        }
+    }
+
+}
+
 void draw_line_v1(int x0, int y0, int x1, int y1, Image& image, const uint8_t* color)
 {
     int dx = x1 - x0;
@@ -82,28 +137,28 @@ void draw_line_v4(int x0, int y0, int x1, int y1, Image& image, const uint8_t* c
 
 void draw_triangle_v1(Vector2i v1, Vector2i v2, Vector2i v3, Image& image, const uint8_t* color)
 {
-    draw_line_v4(v1.x, v1.y, v2.x, v2.y, image, color);
-    draw_line_v4(v2.x, v2.y, v3.x, v3.y, image, color);
-    draw_line_v4(v3.x, v3.y, v1.x, v1.y, image, color);
+    draw_line_v4(v1.x(), v1.y(), v2.x(), v2.y(), image, color);
+    draw_line_v4(v2.x(), v2.y(), v3.x(), v3.y(), image, color);
+    draw_line_v4(v3.x(), v3.y(), v1.x(), v1.y(), image, color);
 }
 
 void draw_triangle_v2(Vector2i v1, Vector2i v2, Vector2i v3, Image& image, const uint8_t* color)
 {
-    if (v1.y == v2.y && v1.y == v3.y) return; //ignored
+    if (v1.y() == v2.y() && v1.y() == v3.y()) return; //ignored
 
-    if (v1.y > v2.y) std::swap(v1, v2);
-    if (v1.y > v3.y) std::swap(v1, v3);
-    if (v2.y > v3.y) std::swap(v2, v3);
+    if (v1.y() > v2.y()) std::swap(v1, v2);
+    if (v1.y() > v3.y()) std::swap(v1, v3);
+    if (v2.y() > v3.y()) std::swap(v2, v3);
 
-    float inv_slope1 = (float)(v2.x - v1.x) / (float)(v2.y - v1.y);
-    float inv_slope2 = (float)(v3.x - v2.x) / (float)(v3.y - v2.y);
-    float inv_slope3 = (float)(v3.x - v1.x) / (float)(v3.y -v1.y);
+    float inv_slope1 = (float)(v2.x() - v1.x()) / (float)(v2.y() - v1.y());
+    float inv_slope2 = (float)(v3.x() - v2.x()) / (float)(v3.y() - v2.y());
+    float inv_slope3 = (float)(v3.x() - v1.x()) / (float)(v3.y() - v1.y());
 
-    float cur_k3 = v1.x;
-    float cur_another = v1.x;
+    float cur_k3 = v1.x();
+    float cur_another = v1.x();
 
-    for (int y = v1.y; y <= v3.y; y++) {
-        bool is_bottom = y <= v2.y;
+    for (int y = v1.y(); y <= v3.y(); y++) {
+        bool is_bottom = y <= v2.y();
         int start = cur_k3;
         int end = cur_another;
         if (start > end) std::swap(start, end);
@@ -154,8 +209,8 @@ void draw_triangle_with_zbuffer(Vector3f* pts, ZBuffer& zbuffer, Image& image, u
     }
 
     Vector3f P;
-    for (P[0] = bboxmin.x; P[0] <= bboxmax.x; P[0]++) {
-        for (P[1] = bboxmin.y; P[1] <= bboxmax.y; P[1]++) {
+    for (P[0] = bboxmin.x(); P[0] <= bboxmax.x(); P[0]++) {
+        for (P[1] = bboxmin.y(); P[1] <= bboxmax.y(); P[1]++) {
             Vector3f bc_screen = barycentric(pts, P);
             if (bc_screen.x() < 0 || bc_screen.y() < 0 || bc_screen.z() < 0) continue;
             float z = 0;
@@ -187,8 +242,8 @@ void draw_triangle_with_zbuffer_and_texs(Vector3f* pts, Vector2f* texts, ZBuffer
     }
 
     Vector3f P;
-    for (P[0] = bboxmin.x; P[0] <= bboxmax.x; P[0]++) {
-        for (P[1] = bboxmin.y; P[1] <= bboxmax.y; P[1]++) {
+    for (P[0] = bboxmin.x(); P[0] <= bboxmax.x(); P[0]++) {
+        for (P[1] = bboxmin.y(); P[1] <= bboxmax.y(); P[1]++) {
             Vector3f bc_screen = barycentric(pts, P);
             if (bc_screen.x() < 0 || bc_screen.y() < 0 || bc_screen.z() < 0) continue;
             float z = 0;
@@ -207,4 +262,15 @@ void draw_triangle_with_zbuffer_and_texs(Vector3f* pts, Vector2f* texts, ZBuffer
             }
         }
     }
+}
+
+void draw_triangle_with_zbuffer_and_texs_and_shader(ZBuffer& zbuffer, Image& image, IShader& shader, int nface)
+{
+    // vertex shader
+    for (int i = 0; i < 3; i++)
+    {
+        shader.vertex_shader(nface, i);
+    }
+
+    rasterize_singlethread(image, zbuffer, shader);
 }

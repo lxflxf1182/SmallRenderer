@@ -12,8 +12,6 @@ Vector3f barycentric(Vector3f* pts, Vector3f P) {
     // u 向量和 x y 向量的点积为 0，所以 x y 向量叉乘可以得到 u 向量
     Vector3f u = cross(s[0], s[1]);
 
-    // 由于 A, B, C, P 的坐标都是 int 类型，所以 u.z 必定是 int 类型，取值范围为 ..., -2, -1, 0, 1, 2, ...
-    // 所以 u.z 绝对值小于 1 意味着三角形退化了，直接舍弃
     if (std::abs(u[2]) > 1e-2)
         return Vector3f(1.f - (u.x() + u.y()) / u.z(), u.y() / u.z(), u.x() / u.z());
     return Vector3f(-1, 1, 1);

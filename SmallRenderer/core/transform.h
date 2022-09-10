@@ -16,13 +16,14 @@ public:
 
 	void viewport(int x, int y, int width, int height);
 
-	void cal_transform(Perspective& camera, Image& image);
+	void init(Perspective& camera, Image& image);
 
-	Vector3f world2screen(Vector3f& v, float width, float height);
+	Vector3f world2screen(Vector3f& v);
 
 	Matrix4f model_trans;
 	Matrix4f view_trans;
 	Matrix4f projection_trans;
+	Matrix4f viewport_trans;
 	Matrix4f transform;
 };
 

@@ -43,7 +43,7 @@ void Model::load_obj(const std::string file_name)
 		} else if (strncmp(line, "vt ", 3) == 0) {              /* texcoord */
 			Vector2f texcoord;
 			items = sscanf(line, "vt %f %f",
-				&texcoord.x, &texcoord.y);
+				&texcoord[0], &texcoord[1]);
 			if (items != 2) {
 				Throw("Model::Model(string): incorrect texcoord read");
 			}
@@ -94,6 +94,13 @@ Vector2f Model::get_uv(const int face_index, const int ver_index)
 	return texcoord_buffer[index];
 }
 
+Vector3f Model::get_normal(const int face_index, const int ver_index)
+{
+	int v_index = face_index + ver_index * 3 + 2;
+	int index = face_buffer[v_index] - 1;
+	return normal_buffer[index];
+}
+
 void Model::load_diffuse_map(const std::string file_name)
 {
 	diffuse_map.read(file_name);
@@ -112,9 +119,9 @@ void Model::load_specular_map(const std::string file_name)
 	//specular_map.flip_vertically();
 }
 
-uint8_t* Model::get_diffuse_color(const Vector2f& texcoord)
+uint8_t* Model::get_diffuse_color(Vector2f& texcoord)
 {
 
-	Vector2i uv(texcoord.x * diffuse_map.get_width(), texcoord.y * diffuse_map.get_height());
+	Vector2i uv(texcoord.x() * diffuse_map.get_width(), texcoord.y() * diffuse_map.get_height());
 	return diffuse_map.get(uv[0], uv[1]);
 }

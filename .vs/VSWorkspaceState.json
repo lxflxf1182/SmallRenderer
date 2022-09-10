@@ -3,7 +3,8 @@
     "",
     "\\out",
     "\\SmallRenderer",
-    "\\SmallRenderer\\core"
+    "\\SmallRenderer\\core",
+    "\\SmallRenderer\\shader"
   ],
   "PreviewInSolutionExplorer": false
 }
