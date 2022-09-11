@@ -22,7 +22,7 @@ int main()
 
     Image image(800, 800, 3);
 
-    Vector3f eye(0, 0, 3);
+    Vector3f eye(0, 0, 1.5);
     Vector3f target(0, 0, 0);
     Vector3f up(0, 1, 0);
     Perspective perspect(eye, target, up, (float)image.get_width() / image.get_height(), fov, near, far);
@@ -40,16 +40,7 @@ int main()
     //Vector3f light_dir(0, 0, -1);
     for (int i = 0; i < num_faces; i++) {
         int face_index = model->get_face_index(i);
-        //Vector3f screen_coords[3];
-        //Vector3f world_coords[3];
-        //Vector2f texts[3];
-        //for (int j = 0; j < 3; j++) {
-        //    Vector3f v = model->get_vertex(face_index, j);
-        //    screen_coords[j] = trans->world2screen(v);
-        //    texts[j] = model->get_uv(face_index, j);
-        //    world_coords[j] = v;
-        //}
-        draw_triangle_with_zbuffer_and_texs_and_shader(zbuffer, image, *shader, face_index);
+        draw_triangle_with_zbuffer_and_texs_and_shader(zbuffer, image, shader, face_index);
     }
     image.write("d:\\test\\model_triangle_with_zbuffer_and_diffuse_perpect_shader.tga");
 	return 0;

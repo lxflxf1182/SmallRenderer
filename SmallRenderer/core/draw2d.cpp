@@ -1,12 +1,12 @@
 #include "draw2d.h"
 
-void rasterize_singlethread(Image& image, ZBuffer& zbuffer, IShader& shader)
+void rasterize_singlethread(Image& image, ZBuffer& zbuffer, IShader* shader)
 {
     Vector3f vertexs[3];
     for (int i = 0; i < 3; i++)
     {
-        Vector3f tep = get_vector3(shader.trans->viewport_trans * shader.clipcoord_attri[i]);
-        vertexs[i] = Vector3f(tep.x(), tep.y(), -shader.clipcoord_attri[i].z());
+        Vector3f tep = get_vector3(shader->trans->viewport_trans * shader->clipcoord_attri[i]);
+        vertexs[i] = Vector3f(tep.x(), tep.y(), -shader->clipcoord_attri[i].z());
     }
 
     Vector2f bboxmin(std::numeric_limits<float>::max(), std::numeric_limits<float>::max());
@@ -32,15 +32,15 @@ void rasterize_singlethread(Image& image, ZBuffer& zbuffer, IShader& shader)
             float gamma = bc_screen.z();
 
             //interpolation correct term
-            float normalizer = 1.0 / (alpha / shader.clipcoord_attri[0].w() + beta / shader.clipcoord_attri[1].w() + gamma / shader.clipcoord_attri[2].w());
+            float normalizer = 1.0 / (alpha / shader->clipcoord_attri[0].w() + beta / shader->clipcoord_attri[1].w() + gamma / shader->clipcoord_attri[2].w());
             //for larger z means away from camera, needs to interpolate z-value as a property			
-            float z = (alpha * vertexs[0].z() / shader.clipcoord_attri[0].w() + beta * vertexs[1].z() / shader.clipcoord_attri[1].w() +
-                gamma * vertexs[2].z() / shader.clipcoord_attri[2].w()) * normalizer;
+            float z = (alpha * vertexs[0].z() / shader->clipcoord_attri[0].w() + beta * vertexs[1].z() / shader->clipcoord_attri[1].w() +
+                gamma * vertexs[2].z() / shader->clipcoord_attri[2].w()) * normalizer;
 
             if (zbuffer[int(x + y * image.get_width())] > z) {
                 zbuffer[int(x + y * image.get_width())] = z;
 
-                uint8_t* color = shader.fragment_shader(alpha, beta, gamma); 
+                uint8_t* color = shader->fragment_shader(alpha, beta, gamma);
 
                 //clamp color value
                 for (int i = 0; i < 3; i++)
@@ -264,13 +264,26 @@ void draw_triangle_with_zbuffer_and_texs(Vector3f* pts, Vector2f* texts, ZBuffer
     }
 }
 
-void draw_triangle_with_zbuffer_and_texs_and_shader(ZBuffer& zbuffer, Image& image, IShader& shader, int nface)
+void draw_triangle_with_zbuffer_and_texs_and_shader(ZBuffer& zbuffer, Image& image, IShader* shader, int nface)
 {
     // vertex shader
     for (int i = 0; i < 3; i++)
     {
-        shader.vertex_shader(nface, i);
+        shader->vertex_shader(nface, i);
     }
 
-    rasterize_singlethread(image, zbuffer, shader);
+    // homogeneous clipping
+    int num_vertex = clip_triangle(shader);
+
+    //triangle assembly
+    for (int i = 0; i < num_vertex - 2; i++) {
+        //构成三角面的3个顶点索引
+        int index0 = 0;
+        int index1 = i + 1;
+        int index2 = i + 2;
+
+        transform_attri(shader, index0, index1, index2);
+
+        rasterize_singlethread(image, zbuffer, shader);
+    }
 }

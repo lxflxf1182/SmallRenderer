@@ -29,6 +29,6 @@ void draw_triangle_with_zbuffer(Vector3f* pts, ZBuffer& zbuffer, Image& image, u
 
 void draw_triangle_with_zbuffer_and_texs(Vector3f* pts, Vector2f* texts, ZBuffer& zbuffer, Image& image, Model* model);
 
-void draw_triangle_with_zbuffer_and_texs_and_shader(ZBuffer& zbuffer, Image& image, IShader& shader, int nface);
+void draw_triangle_with_zbuffer_and_texs_and_shader(ZBuffer& zbuffer, Image& image, IShader* shader, int nface);
 
 #endif

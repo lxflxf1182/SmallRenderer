@@ -6,5 +6,6 @@
     "\\SmallRenderer\\core",
     "\\SmallRenderer\\shader"
   ],
+  "SelectedNode": "\\SmallRenderer\\core\\draw2d.h",
   "PreviewInSolutionExplorer": false
 }

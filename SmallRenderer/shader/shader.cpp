@@ -2,11 +2,17 @@
 
 void GouraudShader::vertex_shader(int nfaces, int nvertex)
 {
+	worldcoord_attri[nvertex] = model->get_vertex(nfaces, nvertex);
+	in_worldcoord[nvertex] = worldcoord_attri[nvertex];
+
+	normal_attri[nvertex] = model->get_normal(nfaces, nvertex);
+	in_normal[nvertex] = normal_attri[nvertex];
 
 	uv_attri[nvertex] = model->get_uv(nfaces, nvertex);
+	in_uv[nvertex] = uv_attri[nvertex];
 
-	clipcoord_attri[nvertex] = embed<4>(model->get_vertex(nfaces, nvertex));
-	clipcoord_attri[nvertex] = trans->transform * clipcoord_attri[nvertex];
+	clipcoord_attri[nvertex] = trans->transform * embed<4>(worldcoord_attri[nvertex]);
+	in_clipcoord[nvertex] = clipcoord_attri[nvertex];
 }
 
 uint8_t* GouraudShader::fragment_shader(float alpha, float beta, float gamma)
