@@ -103,25 +103,72 @@ Vector3f Model::get_normal(const int face_index, const int ver_index)
 
 void Model::load_diffuse_map(const std::string file_name)
 {
-	diffuse_map.read(file_name);
+	diffuse_map = new Image();
+	diffuse_map->read(file_name);
 	//diffuse_map.flip_vertically();
 }
 
 void Model::load_normal_map(const std::string file_name)
 {
-	normal_map.read(file_name);
+	normal_map = new Image();
+	normal_map->read(file_name);
 	//normal_map.flip_vertically();
 }
 
 void Model::load_specular_map(const std::string file_name)
 {
-	specular_map.read(file_name);
+	specular_map = new Image();
+	specular_map->read(file_name);
 	//specular_map.flip_vertically();
+}
+
+void Model::load_emission_map(const std::string file_name)
+{
+	emission_map = new Image();
+	emission_map->read(file_name);
 }
 
 uint8_t* Model::get_diffuse_color(Vector2f& texcoord)
 {
 
-	Vector2i uv(texcoord.x() * diffuse_map.get_width(), texcoord.y() * diffuse_map.get_height());
-	return diffuse_map.get(uv[0], uv[1]);
+	Vector2i uv(texcoord.x() * (diffuse_map->get_width() - 1), texcoord.y() * (diffuse_map->get_height() - 1));
+	return diffuse_map->get(uv[0], uv[1]);
+}
+
+uint8_t* Model::get_specular_color(Vector2f& texcoord)
+{
+	Vector2i uv(texcoord.x() * (specular_map->get_width() - 1), texcoord.y() * (specular_map->get_height() - 1));
+	return specular_map->get(uv[0], uv[1]);
+}
+
+uint8_t* Model::get_normal_color(Vector2f& texcoord)
+{
+	Vector2i uv(texcoord.x() * (normal_map->get_width() - 1), texcoord.y() * (normal_map->get_height() - 1));
+	return normal_map->get(uv[0], uv[1]);
+}
+
+uint8_t* Model::get_emission_color(Vector2f& texcoord)
+{
+	Vector2i uv(texcoord.x() * (emission_map->get_width() - 1), texcoord.y() * (emission_map->get_height() - 1));
+	return emission_map->get(uv[0], uv[1]);
+}
+
+bool Model::diffuse_exists()
+{
+	return (diffuse_map)?	true : false;
+}
+
+bool Model::specular_exists()
+{
+	return (specular_map) ? true : false;
+}
+
+bool Model::normal_exists()
+{
+	return (normal_map) ? true : false;
+}
+
+bool Model::emission_exists()
+{
+	return (emission_map) ? true : false;;
 }

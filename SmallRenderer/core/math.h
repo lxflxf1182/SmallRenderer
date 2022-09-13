@@ -8,6 +8,8 @@
 
 #define EPSILON 1e-5f
 
+
+
 // 利用重心坐标判断点是否在三角形内部
 Vector3f barycentric(Vector3f* pts, Vector3f P);
 
@@ -33,6 +35,15 @@ int clip_with_plane(plane c_plane, int num_vert, IShader* shader);
 int clip_triangle(IShader* shader);
 
 void transform_attri(IShader* shader, int index0, int index1, int index2);
+
+Vector3f uint8_to_vec3f(uint8_t* data);
+
+uint8_t* vec3f_to_uint8(Vector3f data);
+
+template <typename T>
+int length(T* arr) {
+    return _msize(arr) / sizeof(*arr);
+}
 
 template <typename T>
 T clamp(T f, T min, T max)

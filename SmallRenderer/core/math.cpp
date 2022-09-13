@@ -141,3 +141,15 @@ void transform_attri(IShader* shader, int index0, int index1, int index2)
     shader->uv_attri[1] = shader->out_uv[index1];
     shader->uv_attri[2] = shader->out_uv[index2];
 }
+
+
+Vector3f uint8_to_vec3f(uint8_t* data)
+{
+    return Vector3f(data[0], data[1],data[2]);
+}
+
+uint8_t* vec3f_to_uint8(Vector3f data)
+{
+    uint8_t ans[3] = { data[0], data[1],data[2] };
+    return ans;
+}

@@ -5,7 +5,7 @@
 #include "core/buffer.h"
 #include "core/camera.h"
 #include "core/transform.h"
-#include "shader/shader.h"
+#include "shader/blinnphongshader.h"
 
 float near = -0.1F;
 float far = -10000;
@@ -22,7 +22,7 @@ int main()
 
     Image image(800, 800, 3);
 
-    Vector3f eye(0, 0, 1.5);
+    Vector3f eye(0, 0, 2);
     Vector3f target(0, 0, 0);
     Vector3f up(0, 1, 0);
     Perspective perspect(eye, target, up, (float)image.get_width() / image.get_height(), fov, near, far);
@@ -30,18 +30,21 @@ int main()
     Transform* trans = new Transform();
     trans->init(perspect, image);
 
-    GouraudShader* shader = new GouraudShader(&perspect, model, trans);
+    Vector3f light_dir(0, 0, -1);
+    Light* light = new Light(light_dir);
+
+    BlinnPhongShader* shader = new BlinnPhongShader(light, &perspect, model, trans);
 
     int num_faces = model->get_num_faces();
     int width = image.get_width();
     int height = image.get_height();
     ZBuffer zbuffer(width, height);
 
-    //Vector3f light_dir(0, 0, -1);
+
     for (int i = 0; i < num_faces; i++) {
         int face_index = model->get_face_index(i);
         draw_triangle_with_zbuffer_and_texs_and_shader(zbuffer, image, shader, face_index);
     }
-    image.write("d:\\test\\model_triangle_with_zbuffer_and_diffuse_perpect_shader.tga");
+    image.write("d:\\test\\model_triangle_with_zbuffer_and_diffuse_perpect_shader_blinn.tga");
 	return 0;
 }

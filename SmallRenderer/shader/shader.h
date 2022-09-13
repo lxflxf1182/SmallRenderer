@@ -4,6 +4,7 @@
 
 #include "../core/model.h"
 #include "../core/transform.h"
+#include "../core/light.h"
 
 #define MAX_VERTEX 10
 
@@ -11,8 +12,8 @@ class IShader {
 public:
 	IShader() {}
 
-	IShader(Camera* camera, Model* model, Transform* trans) :
-		camera(camera), model(model),trans(trans){}
+	IShader(Light* light, Camera* camera, Model* model, Transform* trans) :
+		light(light), camera(camera), model(model),trans(trans){}
 
 	virtual void vertex_shader(int nfaces, int nvertex) {}
 
@@ -34,6 +35,7 @@ public:
 	Vector3f out_worldcoord[MAX_VERTEX];
 	Vector4f out_clipcoord[MAX_VERTEX];
 
+	Light* light;
 	Camera* camera;
 	Model* model;
 	Transform* trans;
@@ -42,14 +44,12 @@ public:
 
 class GouraudShader : public IShader {
 public:
-	GouraudShader(Camera* camera, Model* model, Transform* trans) :
-		IShader(camera, model, trans) {}
+	GouraudShader(Light* light, Camera* camera, Model* model, Transform* trans) :
+		IShader(light, camera, model, trans) {}
 
 	void vertex_shader(int nfaces, int nvertex);
 
 	uint8_t* fragment_shader(float alpha, float beta, float gamma);
-
-	Vector3f varying_intensity; // vertex–¥»Î£¨fragment∂¡»Î
 };
 
 #endif

@@ -17,7 +17,9 @@ set(HEADERS
 	SmallRenderer/core/matrix.h
 	SmallRenderer/core/camera.h
 	SmallRenderer/core/transform.h
+	SmallRenderer/core/light.h
 	SmallRenderer/shader/shader.h
+	SmallRenderer/shader/blinnphongshader.h
 )
 set(SOURCES
 	SmallRenderer/core/file.cpp
@@ -29,7 +31,9 @@ set(SOURCES
 	SmallRenderer/core/buffer.cpp
 	SmallRenderer/core/camera.cpp
 	SmallRenderer/core/transform.cpp
+	SmallRenderer/core/light.cpp
 	SmallRenderer/shader/shader.cpp
+	SmallRenderer/shader/blinnphongshader.cpp
 	SmallRenderer/main.cpp
 )
 

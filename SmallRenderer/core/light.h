@@ -4,10 +4,13 @@
 #include "vector.h"
 
 class Light {
+public:
 
 	Light(){}
 
-	Light(float intensity, Vector3f dir, Vector3f pos);
+	Light(Vector3f& dir);
+
+	Light(float intensity, Vector3f& dir, Vector3f& pos);
 
 	Vector3f get_dir();
 

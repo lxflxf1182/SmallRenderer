@@ -15,7 +15,12 @@
 
 class Model {
 public:
-	Model(){}
+	Model(){
+		diffuse_map = NULL;
+		normal_map = NULL;
+		specular_map = NULL;
+		emission_map = NULL;
+	}
 	~Model() {
 		std::vector<Vector3f>().swap(position_buffer);
 		std::vector<Vector3f>().swap(normal_buffer);
@@ -44,9 +49,25 @@ public:
 
 	void load_specular_map(const std::string file_name);
 
+	void load_emission_map(const std::string file_name);
+
 	uint8_t* get_diffuse_color(Vector2f& texcoord);
 
-private:
+	uint8_t* get_specular_color(Vector2f& texcoord);
+
+	uint8_t* get_normal_color(Vector2f& texcoord);
+
+	uint8_t* get_emission_color(Vector2f& texcoord);
+
+	bool diffuse_exists();
+	
+	bool specular_exists();
+
+	bool normal_exists();
+
+	bool emission_exists();
+
+//private:
 
 	std::string name;
 	int num_vertexs;
@@ -56,9 +77,10 @@ private:
 	std::vector<Vector2f> texcoord_buffer;
 	std::vector<uint32_t> face_buffer;
 
-	Image diffuse_map;
-	Image normal_map;
-	Image specular_map;
+	Image* diffuse_map;
+	Image* normal_map;
+	Image* specular_map;
+	Image* emission_map;
 };
 
 #endif

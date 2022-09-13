@@ -1,6 +1,10 @@
 #include "light.h"
 
-Light::Light(float intensity, Vector3f dir, Vector3f pos) {
+Light::Light(Vector3f& dir) {
+	direction = dir;
+}
+
+Light::Light(float intensity, Vector3f& dir, Vector3f& pos) {
 	this->intensity = intensity;
 	direction = dir;
 	position = pos;

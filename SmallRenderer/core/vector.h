@@ -35,6 +35,13 @@ public:
 			ans[i] = data[i] + right[i];
 		return ans;
 	}
+
+	Vector<T, Size_>& operator += (const Vector<T, Size_>& right) {
+		for (int i = 0; i < Size_; ++i)
+			this->data[i] += right[i];
+		return *this;
+	}
+
 	Vector<T, Size_> operator - (const Vector<T, Size_>& right){
 		Vector<T, Size_> ans;
 		for (int i = 0; i < Size_; ++i)
@@ -77,6 +84,17 @@ public:
 	void normalize() {
 		float length = this->length();
 		*this /= length;
+	}
+
+	Vector<T, Size_> negate() {
+		return Vector<T, Size_>(-data[0], -data[1], -data[2]);
+	}
+
+	bool is_zero() {
+		for (int i = 0; i < Size_; ++i) {
+			if (data[i] == 0)	return true;
+		}
+		return false;
 	}
 
 	T x() { 
@@ -149,6 +167,35 @@ Vector<T, LEN> embed(const Vector<T, DIM>& v, T fill = 1) {
 	Vector<T, LEN> ret;
 	for (size_t i = LEN; i--; ret[i] = (i < DIM ? v[i] : fill));
 	return ret;
+}
+
+template<typename T, size_t Size_>
+Vector<T, Size_> cwise_product(Vector<T, Size_>& a, Vector<T, Size_>& b)
+{
+	Vector<T, Size_> ans;
+	for (int i = 0; i < Size_; ++i)
+		ans[i] = a[i] * b[i];
+	return ans;
+}
+
+template<typename T, typename M, size_t Size_>
+Vector<T, Size_> cwise_product(M* a, Vector<T, Size_>& b)
+{
+	Vector<T, Size_> ans;
+	for (int i = 0; i < Size_; ++i)
+		ans[i] = (T)a[i] * b[i];
+	return ans;
+}
+
+template<typename T, size_t Size_>
+Vector<T, Size_> uint8_to_vec(uint8_t* data)
+{
+	int size = length(data);
+	Vector<T, Size_> ans;
+	for (int i = 0; i < Size_; ++i) {
+		ans[i] = data[i];
+	}
+	return ans;
 }
 
 //template<class T>

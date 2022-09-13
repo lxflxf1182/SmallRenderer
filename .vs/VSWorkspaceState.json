@@ -6,6 +6,6 @@
     "\\SmallRenderer\\core",
     "\\SmallRenderer\\shader"
   ],
-  "SelectedNode": "\\SmallRenderer\\core\\draw2d.h",
+  "SelectedNode": "\\SmallRenderer\\core\\image.cpp",
   "PreviewInSolutionExplorer": false
 }
